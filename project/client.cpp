@@ -8,7 +8,7 @@
 
 #define BUF_SIZE 100
 
-int main(){
+int main(int argc, char const *argv[]){
 
   struct sockaddr_in serv_addr;
   memset(&serv_addr, 0, sizeof(serv_addr));
@@ -18,6 +18,13 @@ int main(){
 
   char bufSendToServ[BUF_SIZE] = {'\0'};
   char bufRecvFromServ[BUF_SIZE] = {'\0'};
+
+  strcpy(bufSendToServ, argv[1]);
+  printf("Gonna send: %s to server\n", bufSendToServ);
+
+  int sock = socket(PF_INET, SOCK_STREAM, 0);
+  connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
+  send(sock, bufSendToServ, strlen(bufSendToServ), 0);
 
   FILE *fp = fopen("./nums.csv", "rb");
   if (fp == NULL){
@@ -40,7 +47,7 @@ int main(){
   char finMsg[] = "clientFin";
   strcpy(bufSendToServ, finMsg);
   
-  int sock = socket(PF_INET, SOCK_STREAM, 0);
+  sock = socket(PF_INET, SOCK_STREAM, 0);
   connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
   
   send(sock, bufSendToServ, strlen(bufSendToServ), 0);

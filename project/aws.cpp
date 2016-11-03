@@ -28,9 +28,24 @@ int main(){
     printf("The AWS is up and running.\n");
   }
 
+  char function_name[BUF_SIZE] = {'\0'};
   int countClient = 0;
   char *clientFin = "clientFin";
-  FILE *fpRecvNum = fopen("./redvNum.csv", "wb");
+
+  //首先接受控制台参数function name
+  struct sockaddr_in client_addr;
+  socklen_t client_addr_size = sizeof(client_addr);
+  int client_sock = accept(tcp_origin_sock, (struct sockaddr*)&client_addr, &client_addr_size);
+
+  char bufRecvFromClnt[BUF_SIZE] = {'\0'};
+  int buffer_len = recv(client_sock, bufRecvFromClnt, BUF_SIZE, 0);
+
+  strcpy(function_name, bufRecvFromClnt);
+  printf("Received function name: %s at 1st connection.\n", function_name);
+
+  //开始接受数据, 并将收到数据生成服务器本地文件"recvNum.csv"
+  FILE *fpRecvNum = fopen("./recvNum.csv", "wb");
+
   while(1){
     //accept后新建一个交换数据的client_sock
     struct sockaddr_in client_addr;
@@ -40,12 +55,11 @@ int main(){
 
     //服务器接受client来的数据的buffer
     char bufRecvFromClnt[BUF_SIZE] = {'\0'};
-    // char fileBuffer[BUF_SIZE] = {'\0'};
     int buffer_len = recv(client_sock, bufRecvFromClnt, BUF_SIZE, 0);
 
     if (strcmp(bufRecvFromClnt, clientFin) == 0){
       countClient -= 1;
-      printf("The AWS has received %d numbers from the client using TCP over port 25807\n", countClient);
+      printf("The AWS has received %d numbers from the client using TCP over port 25807.\n", countClient);
       break;
     }
 
@@ -58,6 +72,7 @@ int main(){
   }
 
   close(tcp_origin_sock);
-  printf("tcp_origin_sock closed\n");
+  // printf("tcp_origin_sock closed\n");
+
   return 0;
 }
