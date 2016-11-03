@@ -9,9 +9,6 @@
 #define BUF_SIZE 100
 
 int main(int argc, char const *argv[]){
-
-  printf("The client is up and running.\n");
-
   struct sockaddr_in serv_addr;
   memset(&serv_addr, 0, sizeof(serv_addr));
   serv_addr.sin_family = PF_INET;
@@ -25,6 +22,7 @@ int main(int argc, char const *argv[]){
   // printf("Gonna send: %s to server\n", bufSendToServ);
 
   int sock = socket(PF_INET, SOCK_STREAM, 0);
+  printf("The client is up and running.\n");
   connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
   send(sock, bufSendToServ, strlen(bufSendToServ), 0);
 
