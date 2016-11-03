@@ -30,6 +30,7 @@ int main(){
   
   char bufRecvFromD[BUF_SIZE];
 
+  //步骤:接收数据总数->接收操作函数->接收数据->操作->返回给D
 
   //接收要处理的数据数目
   int strLen = recvfrom(sockA, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
@@ -45,18 +46,25 @@ int main(){
   printf("The server has received reduction type <%s>", function_name);
 
   //接收要处理的数据
-  int nums[sample_volume];
+  int numsA[sample_volume];
   int numCount = 0;
   while(1){
-    if ( numCount == sample_volume){
+    if (numCount == sample_volume){
         printf("The Server A has received <%d> numbers\n", numCount+1);
         break;
       }
     int strLen = recvfrom(sockA, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
-    nums[numCount++] = atoi(bufRecvFromD);
+    numsA[numCount++] = atoi(bufRecvFromD);
   }
+  close(sockA);
+  printf("Socket for the transmit has been closed.%s\n");
 
-
+  //本地服务器A处理接收到的数据
+  int i;
+  for (i = 0; i < numCount; i++){
+    printf("%d\n", numsA[i]);
+  }
+  printf("Received numbers have been printed above.");
 
 
 

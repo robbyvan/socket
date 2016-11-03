@@ -58,8 +58,23 @@ int main(){
     int buffer_len = recv(client_sock, bufRecvFromClnt, BUF_SIZE, 0);
 
     if (strcmp(bufRecvFromClnt, clientFin) == 0){
+      fclose(fpRecvNum);
+      printf("file closed.\n");
       countClient -= 1;
       printf("The AWS has received %d numbers from the client using TCP over port <25807>.\n", countClient);
+
+      //把刚刚写在文件里的数据写到数组里(其实也可以第一遍写到一个大数组,以后直接用clientCount)
+      int nums[countClient];
+      FILE *fpRecvNum = fopen("./recvNum.csv", "rb");
+      int i = 0;
+      char numStr[BUF_SIZE];
+      while (!feof(fpRecvNum)){
+        fscanf(fpRecvNum, "%s\n", &numStr);
+        nums[i++] = atoi(numStr);
+      }
+      for (i = 0; i < countClient; i++){
+        printf("%d\n", nums[i]);
+      }
       break;
     }
 
@@ -76,11 +91,20 @@ int main(){
 
   /*lines above are Phase 1*/
 
+  printf("\n---Phase 1 End---\n\n---Phase 2 Start---\n");
+  //send numbers to server A
+  // int sockA = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
+  // struct sockaddr_in serverD_addr;
+  // memset(&serverD_addr, 0, sizeof(serverD_addr));
+  // serverD_addr.sin_family = PF_INET;
+  // serverD_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  // serverD_addr.sin_port = htons(21807);
 
+  // struct sockaddr serverD_addr;
+  // socklen_t serverD_addr_size = sizeof(serverD_addr);
 
-
-
+  // int sample_volume = countClient/3;
 
 
 

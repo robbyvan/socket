@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]){
   char bufRecvFromServ[BUF_SIZE] = {'\0'};
 
   strcpy(bufSendToServ, argv[1]);
-  // printf("Gonna send: %s to server\n", bufSendToServ);
+  printf("Gonna send: %s to server\n", bufSendToServ);
 
   int sock = socket(PF_INET, SOCK_STREAM, 0);
   printf("The client is up and running.\n");
@@ -48,6 +48,9 @@ int main(int argc, char const *argv[]){
     memset(bufSendToServ, 0, BUF_SIZE);
     close(sock);//发送数字结束
   }
+
+  //关闭文件
+  fclose(fp);
 
   printf("The client has sent <%d> numbers to AWS\n", numCount);
 
