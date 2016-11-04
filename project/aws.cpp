@@ -1,5 +1,5 @@
 /*
-USC ID: 69515-21807
+USC ID: xxxxx-xx807
 1 UDP, 24000+xxx (last three digits of your USC ID) 
 1 TCP, 25000+xxx (last three digits of your USC ID)
 */
