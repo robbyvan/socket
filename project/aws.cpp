@@ -30,7 +30,7 @@ int main(){
 
   char function_name[BUF_SIZE] = {'\0'};
   int countClient = 0;
-  char *clientFin = "clientFin";
+  char clientFin[] = "clientFin";
 
   //首先接收控制台参数function name
   struct sockaddr_in client_addr;
