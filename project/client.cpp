@@ -18,6 +18,7 @@ int main(int argc, char const *argv[]){
   char bufSendToServ[BUF_SIZE] = {'\0'};
   char bufRecvFromServ[BUF_SIZE] = {'\0'};
 
+  //首先发送函数名
   strcpy(bufSendToServ, argv[1]);
   printf("Gonna send: %s to server\n", bufSendToServ);
 
@@ -28,6 +29,7 @@ int main(int argc, char const *argv[]){
 
   printf("The client has sent the reduction type <%s> to AWS.\n", bufSendToServ);
 
+  //然后发送数据
   int numCount = 0;
 
   FILE *fp = fopen("./nums.csv", "rb");
@@ -36,7 +38,10 @@ int main(int argc, char const *argv[]){
   }else{
     printf("Open Success.\n");
   }
-  
+
+  // int sock = socket(PF_INET, SOCK_STREAM, 0);
+  // connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
+
   while(!feof(fp)){
     fscanf(fp, "%s\n", &bufSendToServ);
     numCount += 1;
@@ -54,17 +59,25 @@ int main(int argc, char const *argv[]){
 
   printf("The client has sent <%d> numbers to AWS\n", numCount);
 
+  //最后发送结束信息
   char finMsg[] = "clientFin";
   strcpy(bufSendToServ, finMsg);
   
-  sock = socket(PF_INET, SOCK_STREAM, 0);
-  connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
+  int sockFin = socket(PF_INET, SOCK_STREAM, 0);
+  connect(sockFin, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
   
-  send(sock, bufSendToServ, strlen(bufSendToServ), 0);
+  send(sockFin, bufSendToServ, strlen(bufSendToServ), 0);
   printf("%s\n", finMsg);
   
   memset(bufSendToServ, 0, BUF_SIZE);
-  shutdown(sock, SHUT_WR);
+
+  //接收来自server的最终结果
+  recv(sockFin, bufRecvFromServ, BUF_SIZE, 0);
+  printf("String is: %s\n", bufRecvFromServ);
+  int finalResult = atoi(bufRecvFromServ);
+  printf("\n%d\n", finalResult);
+
+  close(sock);
 
   return 0;
 }
