@@ -107,7 +107,7 @@ int main(){
   memset(bufSendToD, 0, BUF_SIZE);
   sprintf(bufSendToD, "%d", result);
 
-  sleep(2);//need to delay, why?
+  // sleep(2);//need to delay, why?
   sendto(sockD, bufSendToD, strlen(bufSendToD), 0, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));
   close(sockD);
 

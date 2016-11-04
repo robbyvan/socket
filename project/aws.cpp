@@ -25,6 +25,19 @@ void DieWithError(char *errorMessage) {
 /**/
 
 int main(){
+  int backsock;
+  printf("\n---Phase 1 Start---\n\n");
+  //UDP socket
+  int sockD = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+  struct sockaddr_in server_D_addr;
+  memset(&server_D_addr, 0, sizeof(server_D_addr));
+  server_D_addr.sin_family = PF_INET;
+  server_D_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  server_D_addr.sin_port = htons(24807);
+  bind(sockD, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));
+  printf("The Server D is up and running using UDP on port <24807>.\n");
+
   //用来握手的socket
   int tcp_origin_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -56,21 +69,45 @@ int main(){
 
   //开始接收数据, 并将收到数据生成服务器本地文件"recvNum.csv"
   FILE *fpRecvNum = fopen("./recvNum.csv", "wb");
-
+  
   while(1){
+    // struct sockaddr_in client_addr;
+    // socklen_t client_addr_size = sizeof(client_addr);
+
     //accept后新建一个交换数据的client_sock
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_size = sizeof(client_addr);
     int client_sock = accept(tcp_origin_sock, (struct sockaddr*)&client_addr, &client_addr_size);
+    // if ( (buffer_len = recv(client_sock, bufRecvFromClnt, BUF_SIZE, 0)) >= 0){
     countClient++;
+    // }
 
-    //服务器接收client来的数据的buffer
-    char bufRecvFromClnt[BUF_SIZE] = {'\0'};
+    backsock = client_sock;
+    // char bufRecvFromClnt[BUF_SIZE] = {'\0'};
     int buffer_len = recv(client_sock, bufRecvFromClnt, BUF_SIZE, 0);
+    
+    //如果还没到结尾, 即收到数字, 往文件里写
+    if (strcmp(bufRecvFromClnt, clientFin) != 0){
+      printf("IP of Fin socket is: %u     ", client_addr.sin_addr.s_addr);
+      printf("Port of Fin socket is: %u\n", client_addr.sin_port);
+      printf("%s\n", bufRecvFromClnt);
+      fprintf(fpRecvNum, "%s\n", bufRecvFromClnt);
+      close(client_sock);
+      printf("The client_socket: %d has closed.      ", client_sock);
+      printf("The backsock is: %d\n", backsock);
+      memset(bufRecvFromClnt, 0, BUF_SIZE);
+    }
 
+    //如果收到的是结尾
     if (strcmp(bufRecvFromClnt, clientFin) == 0){
+      backsock = client_sock;
+      printf("IP of Fin socket is: %u\n", client_addr.sin_addr.s_addr);
+      printf("Port of Fin socket is: %u\n", client_addr.sin_port);
+      printf("The client_socket is %d.     ", client_sock);
+      printf("The backsock is: %d\n", backsock);
       fclose(fpRecvNum);
       printf("file closed.\n");
+      // printf("Address of the client is: %d\n", client_addr.sin_addr.s_addr);
+      // printf("Port of the client is: %d\n", ntohs(client_addr.sin_port));
+      // close(client_sock);//关闭这次数据交换的socket
       countClient -= 1;
       printf("The AWS has received %d numbers from the client using TCP over port <25807>.\n", countClient);
 
@@ -84,21 +121,14 @@ int main(){
         nums[i++] = atoi(numStr);
       }
       fclose(fpRecvNum);
-      for (i = 0; i < countClient; i++){
-        printf("%d\n", nums[i]);
-      }
+      // for (i = 0; i < countClient; i++){
+        // printf("%d\n", nums[i]);
+      // }
       break;
     }
-
-    if (buffer_len > 0){
-      fprintf(fpRecvNum, "%s\n", bufRecvFromClnt);
-    }
-
-    close(client_sock);
-    memset(bufRecvFromClnt, 0, BUF_SIZE);
   }
 
-  close(tcp_origin_sock);
+  // close(tcp_origin_sock);
   // printf("tcp_origin_sock closed\n");
 
   /*lines above are Phase 1*/
@@ -242,16 +272,10 @@ int main(){
 
 
 
-  //接收从服务器A/B/C返回的结果
-  int sockD = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  //lines above are phase 2
+  printf("\n---Phase 2 End---\n\n---Phase 3 Start---\n");
 
-  struct sockaddr_in server_D_addr;
-  memset(&server_D_addr, 0, sizeof(server_D_addr));
-  server_D_addr.sin_family = PF_INET;
-  server_D_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  server_D_addr.sin_port = htons(24807);
-  bind(sockD, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));
-  printf("The Server D is up and running using UDP on port <24807>.\n");
+  //接收从服务器A/B/C返回的结果
 
   struct sockaddr server_A_addr;
   struct sockaddr server_B_addr;
@@ -265,25 +289,21 @@ int main(){
   int strLen;
 
   //接收A
-  if ( (strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_A_addr, &server_A_addr_size)) < 0){
-    DieWithError("A wrong.");
-  }
+  strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_A_addr, &server_A_addr_size);
   results[0] = atoi(bufRecvFromABC);
   printf("received result from server A, it is: %d\n", results[0]);
 
   //接收B
-  if ( (strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_B_addr, &server_B_addr_size)) < 0){
-    DieWithError("B wrong.");
-  }
+  strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_B_addr, &server_B_addr_size);
   results[1] = atoi(bufRecvFromABC);
   printf("received result from server B, it is: %d\n", results[1]);
 
   //接收C
-  if ( (strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_C_addr, &server_C_addr_size)) < 0){
-    DieWithError("C wrong.");
-  }
+  strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_C_addr, &server_C_addr_size);
   results[2] = atoi(bufRecvFromABC);
   printf("received result from server C, it is: %d\n", results[2]);
+
+  close(sockD);
 
   //处理来自ABC的数据
   char max_func[] = "max";
@@ -309,6 +329,31 @@ int main(){
   }
   printf("The final result is: %d\n", finalResult);
 
+  //返回给client数据
+  printf("Check if Fin Socket's client_addr info is still there:\n");
+  printf("The client_socket id is: %d.\n", client_sock);
+  printf("The backsock is: %d\n", backsock);
+  printf("IP of Fin socket is: %u     ", client_addr.sin_addr.s_addr);
+  printf("Port of Fin socket is: %u\n", client_addr.sin_port);
+  char bufSendToClient[BUF_SIZE] = {'\0'};
+
+  memset(bufSendToClient, 0, BUF_SIZE);
+  sprintf(bufSendToClient, "%d", finalResult);//整数转字符串
+
+  printf("The final result string gonna send through send() function: %s\n", bufSendToClient);
+
+  sleep(1);//need to slow down send back the result throgh the Fin socket.
+  //it seems that the TCP are created during loop, not at the very beginning, 
+  //seems it needs time to be active.
+
+  send(backsock, bufSendToClient, BUF_SIZE, 0);//还是用的接收fin包的socket
+
+  printf("Sent final result to client.\n");
+
+  close(backsock);//关数据交换socket
+  close(tcp_origin_sock);//关握手socket
+
+  printf("\n---Phase 3 End---\n");
 
 
 
