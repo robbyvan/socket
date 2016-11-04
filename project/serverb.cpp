@@ -94,7 +94,27 @@ int main(){
 
   printf("After doing %s operation, the result is : %d\n", function_name, result);
 
+
+
   //完成数据处理后, 将结果返回给AWS
+  int sockD = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+  struct sockaddr_in server_D_addr;
+  server_D_addr.sin_family = PF_INET;
+  server_D_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  server_D_addr.sin_port = htons(24807);
+
+  char bufSendToD[BUF_SIZE] = {'\0'};
+
+  memset(bufSendToD, 0, BUF_SIZE);
+  sprintf(bufSendToD, "%d", result);
+
+  sleep(2);
+  sendto(sockD, bufSendToD, strlen(bufSendToD), 0, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));
+  close(sockD);
+
+
+
 
 
 

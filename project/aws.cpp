@@ -13,6 +13,17 @@ USC ID: 69515-21807
 
 #define BUF_SIZE 100
 
+/**/
+int get_max(int *nums, int sample_volume);
+int get_min(int *nums, int sample_volume);
+int get_sum(int *nums, int sample_volume);
+int get_sos(int *nums, int sample_volume);
+void DieWithError(char *errorMessage) {
+   perror(errorMessage);
+   exit(1);
+ }
+/**/
+
 int main(){
   //用来握手的socket
   int tcp_origin_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -234,35 +245,45 @@ int main(){
   //接收从服务器A/B/C返回的结果
   int sockD = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-  struct sockaddr_in, serverD_addr;
-  memset(&serverD_addr, 0, sizeof(serverD_addr));
-  serverD_addr.sin_family = PF_INET;
-  serverD_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  serverD_addr.sin_port = htons(24807);
-  bind(sockD, (struct sockaddr*)&serverD_addr, sizeof(serverD_addr));
+  struct sockaddr_in server_D_addr;
+  memset(&server_D_addr, 0, sizeof(server_D_addr));
+  server_D_addr.sin_family = PF_INET;
+  server_D_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  server_D_addr.sin_port = htons(24807);
+  bind(sockD, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));
   printf("The Server D is up and running using UDP on port <24807>.\n");
 
-  struct sockaddr serverA_addr, serverB_addr, serverC_addr;
-  socklen_t serverA_addr_size = sizeof(serverA_addr);
-  socklen_t serverB_addr_size = sizeof(serverB_addr);
-  socklen_t serverC_addr_size = sizeof(serverC_addr);
+  struct sockaddr server_A_addr;
+  struct sockaddr server_B_addr;
+  struct sockaddr server_C_addr;
+  socklen_t server_A_addr_size = sizeof(server_A_addr);
+  socklen_t server_B_addr_size = sizeof(server_B_addr);
+  socklen_t server_C_addr_size = sizeof(server_C_addr);
 
-  char bufRecvFromA[BUF_SIZE];
-  char bufRecvFromB[BUF_SIZE];
-  char bufRecvFromC[BUF_SIZE];
+  char bufRecvFromABC[BUF_SIZE];
   int results[3];
+  int strLen;
 
   //接收A
-  int strLen = recvfrom(sockD, bufRecvFromA, BUF_SIZE, 0, &serverA_addr, &serverA_addr_size);
-  int results[0] = atoi(bufRecvFromA);
+  if ( (strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_A_addr, &server_A_addr_size)) < 0){
+    DieWithError("A wrong.");
+  }
+  results[0] = atoi(bufRecvFromABC);
+  printf("received result from server A, it is: %d\n", results[0]);
 
   //接收B
-  int strLen = recvfrom(sockD, bufRecvFromB, BUF_SIZE, 0, &serverA_addr, &serverA_addr_size);
-  int results[1] = atoi(bufRecvFromB);
+  if ( (strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_B_addr, &server_B_addr_size)) < 0){
+    DieWithError("B wrong.");
+  }
+  results[1] = atoi(bufRecvFromABC);
+  printf("received result from server B, it is: %d\n", results[1]);
 
   //接收C
-  int strLen = recvfrom(sockD, bufRecvFromC, BUF_SIZE, 0, &serverC_addr, &serverC_addr_size);
-  int result[2] = atoi(bufRecvFromC);
+  if ( (strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_C_addr, &server_C_addr_size)) < 0){
+    DieWithError("C wrong.");
+  }
+  results[2] = atoi(bufRecvFromABC);
+  printf("received result from server C, it is: %d\n", results[2]);
 
   //处理来自ABC的数据
   char max_func[] = "max";
