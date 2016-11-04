@@ -72,6 +72,7 @@ int main(){
         fscanf(fpRecvNum, "%s\n", &numStr);
         nums[i++] = atoi(numStr);
       }
+      fclose(fpRecvNum);
       for (i = 0; i < countClient; i++){
         printf("%d\n", nums[i]);
       }
@@ -92,20 +93,54 @@ int main(){
   /*lines above are Phase 1*/
 
   printf("\n---Phase 1 End---\n\n---Phase 2 Start---\n");
+
   //send numbers to server A
-  // int sockA = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  int sockA = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-  // struct sockaddr_in serverD_addr;
-  // memset(&serverD_addr, 0, sizeof(serverD_addr));
-  // serverD_addr.sin_family = PF_INET;
-  // serverD_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  // serverD_addr.sin_port = htons(21807);
+  printf("sockA created.\n");
 
-  // struct sockaddr serverD_addr;
-  // socklen_t serverD_addr_size = sizeof(serverD_addr);
+  struct sockaddr_in serverA_addr;
+  memset(&serverD_addr, 0, sizeof(serverD_addr));
+  serverA_addr.sin_family = PF_INET;
+  serverA_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  serverA_addr.sin_port = htons(21807);
 
-  // int sample_volume = countClient/3;
+  int sample_volume = countClient/3;
 
+  printf("sample_volume is: %d\n", sample_volume);
+
+  char bufSendToA[BUF_SIZE] = {'\0'};
+
+  //先发送数据总数给A
+  memset(bufSendToA, 0, BUF_SIZE);
+  sprintf(bufSendToA, "%d", sample_volume);//整数转字符串
+
+  printf("sprinf is:%s\n", bufSendToA);
+
+  // itoa(sample_volume, bufSendToA, 10);
+  sendto(sockA, bufSendToA, strlen(bufSendToA), 0, (struct sockaddr*)&serverA_addr, sizeof(serverA_addr));
+  memset(bufSendToA, 0, BUF_SIZE);
+
+  //再发送函数名给A
+  strcpy(bufSendToA, function_name);
+
+  printf("function name is: %s\n", bufSendToA);
+
+  sendto(sockA, bufSendToA, strlen(bufSendToA), 0, (struct sockaddr*)&serverA_addr, sizeof(serverA_addr));
+  memset(bufSendToA, 0, BUF_SIZE);
+
+  //发送sample_volume个数据
+  FILE *fp = fopen("./recvNum.csv", "rb");
+
+  for (int i = 0; i < sample_volume; i++){
+    fscanf(fp, "%s\n", &bufSendToA);
+    // itoa(nums[i], bufSendToA, 10);
+    printf("sending: %s\n", bufSendToA);
+    sendto(sockA, bufSendToA, strlen(bufSendToA), 0, (struct sockaddr*)&serverA_addr, sizeof(serverA_addr));
+  }
+  printf("Sent %d numbers to Server A.\n", sample_volume);
+
+  close(sockA);
 
 
 

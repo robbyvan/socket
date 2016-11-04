@@ -23,7 +23,7 @@ int main(){
   serverA_addr.sin_family = PF_INET;
   serverA_addr.sin_addr.s_addr = htonl(INADDR_ANY);//自动获取本地IP
   serverA_addr.sin_port = htons(21807);
-  bind(sock, (struct sockaddr*)&serverA_addr, sizeof(serverA_addr));
+  bind(sockA, (struct sockaddr*)&serverA_addr, sizeof(serverA_addr));
 
   struct sockaddr serverD_addr;
   socklen_t serverD_addr_size = sizeof(serverD_addr);
@@ -40,7 +40,7 @@ int main(){
   //接收要进行的函数操作
   char function_name[BUF_SIZE] = {'\0'};
   
-  int strLen = recvfrom(sockA, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
+  strLen = recvfrom(sockA, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
   
   strcpy(function_name, bufRecvFromD);
   printf("The server has received reduction type <%s>", function_name);
@@ -50,21 +50,19 @@ int main(){
   int numCount = 0;
   while(1){
     if (numCount == sample_volume){
-        printf("The Server A has received <%d> numbers\n", numCount+1);
+        printf("The Server A has received <%d> numbers\n", numCount);
         break;
       }
     int strLen = recvfrom(sockA, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
     numsA[numCount++] = atoi(bufRecvFromD);
+    printf("Receiving %d-th number: %d\n", numCount, numsA[numCount-1]);
   }
   close(sockA);
-  printf("Socket for the transmit has been closed.%s\n");
+  printf("Socket for receiving data from AWS has closed.\n");
 
   //本地服务器A处理接收到的数据
-  int i;
-  for (i = 0; i < numCount; i++){
-    printf("%d\n", numsA[i]);
-  }
-  printf("Received numbers have been printed above.");
+  
+  printf("Received numbers have been printed above.\n");
 
 
 
