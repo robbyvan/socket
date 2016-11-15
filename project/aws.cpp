@@ -25,7 +25,7 @@ void DieWithError(char *errorMessage) {
 /**/
 
 int main(){
-  printf("\n---Phase 1 Start---\n");
+  // printf("\n---Phase 1 Start---\n");
   //UDP socket
   int sockD = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -35,7 +35,7 @@ int main(){
   server_D_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   server_D_addr.sin_port = htons(24807);
   bind(sockD, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));
-  printf("The Server D is up and running using UDP on port <24807>.\n");
+  // printf("The Server D is up and running using UDP on port <24807>.\n");
 
   //用来握手的socket
   int tcp_origin_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -64,7 +64,7 @@ int main(){
   int buffer_len = recv(client_sock, bufRecvFromClnt, BUF_SIZE, 0);
 
   strcpy(function_name, bufRecvFromClnt);
-  printf("Received function name: %s at 1st connection.\n", function_name);
+  // printf("Received function name: %s at 1st connection.\n", function_name);
 
   //开始接收数据, 保存在nums[3000]中
   int nums[3000] = {'\0'};
@@ -77,12 +77,9 @@ int main(){
 
     //如果还没到结尾, 即收到数字, 往文件里写
     if (strcmp(bufRecvFromClnt, clientFin) != 0){
-
-      printf("%d-th received: ", countClient);
-      printf("%s\n", bufRecvFromClnt);
-
+      // printf("%d-th received: ", countClient);
+      // printf("%s\n", bufRecvFromClnt);
       nums[countClient] = atoi(bufRecvFromClnt);
-     
       memset(bufRecvFromClnt, 0, BUF_SIZE);
     }
 
@@ -96,12 +93,11 @@ int main(){
 
   /*lines above are Phase 1*/
 
-  printf("---Phase 1 End---\n\n---Phase 2 Start---\n");
+  // printf("---Phase 1 End---\n\n---Phase 2 Start---\n");
 
   //1a)先发送数据总数给A
   int sockA = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-  printf("sockA created.\n");
+  // printf("sockA created.\n");
 
   struct sockaddr_in serverA_addr;
   memset(&serverA_addr, 0, sizeof(serverA_addr));
@@ -121,8 +117,7 @@ int main(){
 
   //1b)先发送数据总数给B
   int sockB = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-  printf("sockB created.\n");
+  // printf("sockB created.\n");
 
   struct sockaddr_in serverB_addr;
   memset(&serverB_addr, 0, sizeof(serverB_addr));
@@ -140,8 +135,7 @@ int main(){
 
 //1c)先发送数据总数给C
   int sockC = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-  printf("sockC created.\n");
+  // printf("sockC created.\n");
 
   struct sockaddr_in serverC_addr;
   memset(&serverC_addr, 0, sizeof(serverC_addr));
@@ -191,32 +185,31 @@ int main(){
     // memset(bufSendToA, 0, BUF_SIZE);
     sprintf(bufSendToA, "%d", nums[i]);//整数转字符串
 
-    printf("sending: %s to Server A, %d-th\n", bufSendToA, i);
+    // printf("sending: %s to Server A, %d-th\n", bufSendToA, i);
     sendto(sockA, bufSendToA, strlen(bufSendToA), 0, (struct sockaddr*)&serverA_addr, sizeof(serverA_addr));
   }
-  printf("\nSent %d numbers to Server A.\n\n", sample_volume);
+  printf("The AWS sent <%d> numbers to Backend­Server <A>\n", sample_volume);
   close(sockA);
 
   //3b)最后发送sample_volume个数据给B
   for (/*int i = sample_volume*/; i < (2*sample_volume); ++i){
     sprintf(bufSendToB, "%d", nums[i]);//整数转字符串
-    printf("sending: %s to Server B, %d-th\n", bufSendToB, i);
+    // printf("sending: %s to Server B, %d-th\n", bufSendToB, i);
     sendto(sockB, bufSendToB, strlen(bufSendToB), 0, (struct sockaddr*)&serverB_addr, sizeof(serverB_addr));
   }
-  printf("\nSent %d numbers to Server B.\n\n", sample_volume);
+  printf("The AWS sent <%d> numbers to Backend­Server <B>\n", sample_volume);
   close(sockB);
 
   //3b)最后发送sample_volume个数据给C
   for (; i < countClient; ++i){
     sprintf(bufSendToC, "%d", nums[i]);//整数转字符串
-    printf("sending: %s to Server C, %d-th\n", bufSendToC, i);
+    // printf("sending: %s to Server C, %d-th\n", bufSendToC, i);
     sendto(sockC, bufSendToC, strlen(bufSendToC), 0, (struct sockaddr*)&serverC_addr, sizeof(serverC_addr));
   }
-  printf("Sent %d numbers to Server C.\n", sample_volume);
+  printf("The AWS sent <%d> numbers to Backend­Server <C>\n", sample_volume);
   close(sockC);
-
   //lines above are phase 2
-  printf("---Phase 2 End---\n\n---Phase 3 Start---\n");
+  // printf("---Phase 2 End---\n\n---Phase 3 Start---\n");
 
   //接收从服务器A/B/C返回的结果
 
@@ -234,17 +227,17 @@ int main(){
   //接收A
   strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_A_addr, &server_A_addr_size);
   results[0] = atoi(bufRecvFromABC);
-  printf("received result from server A, it is: %d\n", results[0]);
+  printf("The AWS received reduction result of <%s> from Backend­Server <A> using UDP over port <21807> and it is %d\n",function_name, results[0]);
 
   //接收B
   strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_B_addr, &server_B_addr_size);
   results[1] = atoi(bufRecvFromABC);
-  printf("received result from server B, it is: %d\n", results[1]);
+  printf("The AWS received reduction result of <%s> from Backend­Server <B> using UDP over port <22807> and it is %d\n",function_name, results[1]);
 
   //接收C
   strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_C_addr, &server_C_addr_size);
   results[2] = atoi(bufRecvFromABC);
-  printf("received result from server C, it is: %d\n", results[2]);
+  printf("The AWS received reduction result of <%s> from Backend­Server <C> using UDP over port <23807> and it is %d\n",function_name, results[2]);
 
   close(sockD);
 
@@ -270,12 +263,12 @@ int main(){
   }else {
     printf("No such operation.\n");
   }
-  printf("The final result is: %d\n", finalResult);
+  printf("The AWS has successfully finished the reduction <%s>: %d\n",function_name, finalResult);
 
   //返回给client数据
-  printf("The client_socket id is: %d.\n", client_sock);
-  printf("IP of client_socket is: %u    ", client_addr.sin_addr.s_addr);
-  printf("Port of client_socket is: %u\n", client_addr.sin_port);
+  // printf("The client_socket id is: %d.\n", client_sock);
+  // printf("IP of client_socket is: %u    ", client_addr.sin_addr.s_addr);
+  // printf("Port of client_socket is: %u\n", client_addr.sin_port);
   char bufSendToClient[BUF_SIZE] = {'\0'};
 
   memset(bufSendToClient, 0, BUF_SIZE);
@@ -283,14 +276,15 @@ int main(){
 
   printf("The final result string gonna send through send() function: %s\n", bufSendToClient);
 
-  send(client_sock, bufSendToClient, BUF_SIZE, 0);
-
-  printf("Sent final result to client.\n");
+  int counter = send(client_sock, bufSendToClient, BUF_SIZE, 0);
+  if(counter != -1){
+    printf("The AWS has successfully finished sending the reduction value to client.\n");
+  }
 
   close(client_sock);//关数据交换socket
   close(tcp_origin_sock);//关握手socket
 
-  printf("---Phase 3 End---\n\n");
+  // printf("---Phase 3 End---\n\n");
 
   return 0;
 }

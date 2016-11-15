@@ -57,7 +57,7 @@ int main(int argc, char const *argv[]){
   strcpy(bufSendToServ, finMsg);
   
   send(sock, bufSendToServ, strlen(bufSendToServ), 0);
-  printf("sent:'%s' to AWS\n", finMsg);
+  // printf("sent:'%s' to AWS\n", finMsg);
   
   memset(bufSendToServ, 0, BUF_SIZE);
 
@@ -65,7 +65,7 @@ int main(int argc, char const *argv[]){
   recv(sock, bufRecvFromServ, BUF_SIZE, 0);
   // printf("String is: %s\n", bufRecvFromServ);
   int finalResult = atoi(bufRecvFromServ);
-  printf("Final Result: %d\n", finalResult);
+  printf("The client has received reduction <%s>: %d\n",argv[1], finalResult);
 
   close(sock);
 
