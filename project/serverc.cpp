@@ -42,7 +42,7 @@ int main(){
   //接收要处理的数据数目
   int strLen = recvfrom(sockC, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
   int sample_volume = atoi(bufRecvFromD);
-  printf("The server gonna deal with <%d> samples", sample_volume);
+  // printf("The server gonna deal with <%d> samples", sample_volume);
 
   //接收要进行的函数操作
   char function_name[BUF_SIZE] = {'\0'};
@@ -50,7 +50,7 @@ int main(){
   strLen = recvfrom(sockC, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
   
   strcpy(function_name, bufRecvFromD);
-  printf("The server has received reduction type <%s>", function_name);
+  // printf("The server has received reduction type <%s>", function_name);
 
   //接收要处理的数据
   int numsC[sample_volume];
@@ -62,12 +62,11 @@ int main(){
       }
     int strLen = recvfrom(sockC, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
     numsC[numCount++] = atoi(bufRecvFromD);
-    printf("Receiving %d-th number: %d\n", numCount, numsC[numCount-1]);
+    // printf("Receiving %d-th number: %d\n", numCount, numsC[numCount-1]);
   }
   close(sockC);
-  printf("Socket for receiving data from AWS has closed.\n");
-
-  printf("Received numbers have been printed above.\n");
+  // printf("Socket for receiving data from AWS has closed.\n");
+  // printf("Received numbers have been printed above.\n");
 
   //本地服务器C处理接收到的数据
   char max_func[] = "max";
@@ -92,7 +91,7 @@ int main(){
     printf("No such operation.\n");
   }
 
-  printf("After doing %s operation, the result is : %d\n", function_name, result);
+  printf("The Server C has successfully finished the reduction <%s>: %d\n", function_name, result);
 
   
 
@@ -109,14 +108,9 @@ int main(){
   memset(bufSendToD, 0, BUF_SIZE);
   sprintf(bufSendToD, "%d", result);
 
-  // sleep(2);
   sendto(sockD, bufSendToD, strlen(bufSendToD), 0, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));
+  printf("The Server C has successfully finished sending the reduction value to AWS server.\n");
   close(sockD);
-
-
-
-
-
   return 0;
 }
 
