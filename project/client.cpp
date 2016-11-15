@@ -38,20 +38,18 @@ int main(int argc, char const *argv[]){
   }else{
     printf("Open Success.\n");
   }
-
-  // int sock = socket(PF_INET, SOCK_STREAM, 0);
-  // connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
-
+  
   while(!feof(fp)){
     fscanf(fp, "%s\n", &bufSendToServ);
     numCount += 1;
 
-    int sock = socket(PF_INET, SOCK_STREAM, 0);
-    connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
+    // int sock = socket(PF_INET, SOCK_STREAM, 0);
+    // connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
 
-    send(sock, bufSendToServ, strlen(bufSendToServ), 0);
-    memset(bufSendToServ, 0, BUF_SIZE);
-    close(sock);//发送数字结束
+    // send(sock, bufSendToServ, strlen(bufSendToServ), 0);
+    send(sock, bufSendToServ, sizeof(long int), 0);
+    // memset(bufSendToServ, 0, BUF_SIZE); modified
+    // close(sock);//发送数字结束
   }
 
   //关闭文件
@@ -60,19 +58,21 @@ int main(int argc, char const *argv[]){
   printf("The client has sent <%d> numbers to AWS\n", numCount);
 
   //最后发送结束信息
-  char finMsg[] = "clientFin";
+  char finMsg[] = "Fin";
   strcpy(bufSendToServ, finMsg);
   
-  int sockFin = socket(PF_INET, SOCK_STREAM, 0);
-  connect(sockFin, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
+  // int sockFin = socket(PF_INET, SOCK_STREAM, 0);
+  // connect(sockFin, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
   
-  send(sockFin, bufSendToServ, strlen(bufSendToServ), 0);
+  // send(sockFin, bufSendToServ, strlen(bufSendToServ), 0);modified
+  send(sock, bufSendToServ, strlen(bufSendToServ), 0);
   printf("%s\n", finMsg);
   
-  memset(bufSendToServ, 0, BUF_SIZE);
+  // memset(bufSendToServ, 0, BUF_SIZE);modified
 
   //接收来自server的最终结果
-  recv(sockFin, bufRecvFromServ, BUF_SIZE, 0);
+  // recv(sockFin, bufRecvFromServ, BUF_SIZE, 0);modified
+  recv(sock, bufRecvFromServ, BUF_SIZE, 0);
   printf("String is: %s\n", bufRecvFromServ);
   int finalResult = atoi(bufRecvFromServ);
   printf("\n%d\n", finalResult);
