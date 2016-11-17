@@ -11,7 +11,8 @@ USC ID: xxxxx-xx807
 #include <sys/socket.h>
 #include <signal.h>
 
-#define BUF_SIZE 100
+#define BUF_SIZE sizeof(long int)
+#define LONG_BUF 3*sizeof(long int)*sizeof(long int)
 
 /**/
 int get_max(int *nums, int sample_volume);
@@ -220,22 +221,22 @@ int main(){
   socklen_t server_B_addr_size = sizeof(server_B_addr);
   socklen_t server_C_addr_size = sizeof(server_C_addr);
 
-  char bufRecvFromABC[BUF_SIZE];
+  char bufRecvFromABC[LONG_BUF] = {'\0'};
   int results[3];
   int strLen;
 
   //接收A
-  strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_A_addr, &server_A_addr_size);
+  strLen = recvfrom(sockD, bufRecvFromABC, LONG_BUF, 0, &server_A_addr, &server_A_addr_size);
   results[0] = atoi(bufRecvFromABC);
   printf("The AWS received reduction result of <%s> from Backend­Server <A> using UDP over port <21807> and it is %d\n",function_name, results[0]);
 
   //接收B
-  strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_B_addr, &server_B_addr_size);
+  strLen = recvfrom(sockD, bufRecvFromABC, LONG_BUF, 0, &server_B_addr, &server_B_addr_size);
   results[1] = atoi(bufRecvFromABC);
   printf("The AWS received reduction result of <%s> from Backend­Server <B> using UDP over port <22807> and it is %d\n",function_name, results[1]);
 
   //接收C
-  strLen = recvfrom(sockD, bufRecvFromABC, BUF_SIZE, 0, &server_C_addr, &server_C_addr_size);
+  strLen = recvfrom(sockD, bufRecvFromABC, LONG_BUF, 0, &server_C_addr, &server_C_addr_size);
   results[2] = atoi(bufRecvFromABC);
   printf("The AWS received reduction result of <%s> from Backend­Server <C> using UDP over port <23807> and it is %d\n",function_name, results[2]);
 
@@ -269,14 +270,14 @@ int main(){
   // printf("The client_socket id is: %d.\n", client_sock);
   // printf("IP of client_socket is: %u    ", client_addr.sin_addr.s_addr);
   // printf("Port of client_socket is: %u\n", client_addr.sin_port);
-  char bufSendToClient[BUF_SIZE] = {'\0'};
+  char bufSendToClient[LONG_BUF] = {'\0'};
 
-  memset(bufSendToClient, 0, BUF_SIZE);
+  memset(bufSendToClient, 0, LONG_BUF);
   sprintf(bufSendToClient, "%d", finalResult);//整数转字符串
 
   // printf("The final result string gonna send through send() function: %s\n", bufSendToClient);
 
-  int counter = send(client_sock, bufSendToClient, BUF_SIZE, 0);
+  int counter = send(client_sock, bufSendToClient, LONG_BUF, 0);
   if(counter != -1){
     printf("The AWS has successfully finished sending the reduction value to client.\n");
   }

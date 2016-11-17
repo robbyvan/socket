@@ -11,8 +11,8 @@ Port: 22807
 #include <sys/socket.h>
 #include <signal.h>
 
-#define BUF_SIZE 100
-#define MAX_VOLUME 1000
+#define BUF_SIZE sizeof(long int)
+#define LONG_BUF 3*sizeof(long int)*sizeof(long int)
 
 /**/
 int get_max(int *nums, int sample_volume);
@@ -106,21 +106,14 @@ int main(){
   server_D_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   server_D_addr.sin_port = htons(24807);
 
-  char bufSendToD[BUF_SIZE] = {'\0'};
+  char bufSendToD[LONG_BUF] = {'\0'};
 
-  memset(bufSendToD, 0, BUF_SIZE);
+  memset(bufSendToD, 0, LONG_BUF);
   sprintf(bufSendToD, "%d", result);
 
   sendto(sockD, bufSendToD, strlen(bufSendToD), 0, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));
   printf("The Server B has successfully finished sending the reduction value to AWS server.\n");
   close(sockD);
-
-
-
-
-
-
-
 
   return 0;
 }
