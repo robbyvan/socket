@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <signal.h>
 
-#define BUF_SIZE sizeof(long int)
+#define BUF_SIZE 1000
 #define LONG_BUF 3*sizeof(long int)*sizeof(long int)
 
 int main(int argc, char const *argv[]){
@@ -64,7 +64,12 @@ int main(int argc, char const *argv[]){
   memset(bufSendToServ, 0, BUF_SIZE);
 
   //接收来自server的最终结果
-  recv(sock, bufRecvFromServ, LONG_BUF, 0);
+  char max_func[] = "max";
+  char min_func[] = "min";
+  char sum_func[] = "sum";
+  char sos_func[] = "sos";
+
+  recv(sock, bufRecvFromServ, BUF_SIZE, 0);
   // printf("String is: %s\n", bufRecvFromServ);
   int finalResult = atoi(bufRecvFromServ);
   printf("The client has received reduction <%s>: %d\n",argv[1], finalResult);
