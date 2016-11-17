@@ -154,7 +154,7 @@ int main(){
 
   //2a)再发送函数名给A
   strcpy(bufSendToA, function_name);
-
+  
   // printf("function name is: %s\n", bufSendToA);
 
   sendto(sockA, bufSendToA, strlen(bufSendToA), 0, (struct sockaddr*)&serverA_addr, sizeof(serverA_addr));
@@ -170,7 +170,7 @@ int main(){
 
   //2c)再发送函数名给C
   strcpy(bufSendToC, function_name);
-
+  
   // printf("function name is: %s\n", bufSendToC);
 
   sendto(sockC, bufSendToC, strlen(bufSendToC), 0, (struct sockaddr*)&serverC_addr, sizeof(serverC_addr));
@@ -274,7 +274,7 @@ int main(){
   memset(bufSendToClient, 0, BUF_SIZE);
   sprintf(bufSendToClient, "%d", finalResult);//整数转字符串
 
-  printf("The final result string gonna send through send() function: %s\n", bufSendToClient);
+  // printf("The final result string gonna send through send() function: %s\n", bufSendToClient);
 
   int counter = send(client_sock, bufSendToClient, BUF_SIZE, 0);
   if(counter != -1){

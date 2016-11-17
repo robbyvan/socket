@@ -20,7 +20,7 @@ int main(int argc, char const *argv[]){
 
   //首先发送函数名
   strcpy(bufSendToServ, argv[1]);
-  printf("Gonna send: %s to server\n", bufSendToServ);
+  // printf("Gonna send: %s to server\n", bufSendToServ);
 
   int sock = socket(PF_INET, SOCK_STREAM, 0);
   printf("The client is up and running.\n");
@@ -43,6 +43,7 @@ int main(int argc, char const *argv[]){
     fscanf(fp, "%s\n", &bufSendToServ);
     numCount += 1;
 
+    // printf("gonna send: %s to AWS\n", bufSendToServ);
     send(sock, bufSendToServ, sizeof(long int), 0);
     memset(bufSendToServ, 0, BUF_SIZE);
   }

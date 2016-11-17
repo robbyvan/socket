@@ -42,22 +42,25 @@ int main(){
   //接收要处理的数据数目
   int strLen = recvfrom(sockC, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
   int sample_volume = atoi(bufRecvFromD);
-  // printf("The server gonna deal with <%d> samples", sample_volume);
+  // printf("The server gonna deal with <%d> samples\n", sample_volume);
 
   //接收要进行的函数操作
   char function_name[BUF_SIZE] = {'\0'};
   
   strLen = recvfrom(sockC, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
   
+  // printf("before strcpy, received:%s\n", bufRecvFromD);
+  bufRecvFromD[3] = '\0';
+  //Note: when testing on my PC, bakck-end servers will receive function name correctly, which means no need to add this line. However on Nunki, somehow it will added a question mark at the end of the function name when receiving. Since in this project all the reduction type are 3-character, so I intentionally let "bufRecvFromD[3] = '\0' " here as a simple sulution. But in general, in cases when function names are not the same length, the back-end servers side could check each elements from the beginning of the "bufRecvFrom[]" array, i.e: to check if 'a' < bufRecvFrom[D]) < 'z' || 'A' < bufRecvFrom[D] < 'Z' until it is not a letter, then added '\0' at the end of the array. So the problem will also be solved.
   strcpy(function_name, bufRecvFromD);
-  // printf("The server has received reduction type <%s>", function_name);
+  // printf("The server has received reduction type <%s>\n", function_name);
 
   //接收要处理的数据
   int numsC[sample_volume];
   int numCount = 0;
   while(1){
     if (numCount == sample_volume){
-        printf("The Server C has received <%d> numbers\n", numCount);
+        // printf("The Server C has received <%d> numbers\n", numCount);
         break;
       }
     int strLen = recvfrom(sockC, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
@@ -150,5 +153,3 @@ int get_sos(int *nums, int sample_volume){
   }
   return sos;
 }
-
-// }
