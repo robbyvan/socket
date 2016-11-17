@@ -27,7 +27,7 @@ int main(){
   struct sockaddr_in serverC_addr;
   memset(&serverC_addr, 0, sizeof(serverC_addr));
   serverC_addr.sin_family = PF_INET;
-  serverC_addr.sin_addr.s_addr = htonl(INADDR_ANY);//自动获取本地IP
+  serverC_addr.sin_addr.s_addr = htonl(INADDR_ANY);//atomatically get the local IP address
   serverC_addr.sin_port = htons(23807);
   bind(sockC, (struct sockaddr*)&serverC_addr, sizeof(serverC_addr));
   printf("The Server C is up and running using UDP on port <23807>.\n");
@@ -37,27 +37,24 @@ int main(){
   
   char bufRecvFromD[BUF_SIZE];
 
-  //步骤:接收数据总数->接收操作函数->接收数据->操作->返回给D
-
-  //接收要处理的数据数目
+  //receive the volume of numbers
   int strLen = recvfrom(sockC, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
   int sample_volume = atoi(bufRecvFromD);
   // printf("The server gonna deal with <%d> samples\n", sample_volume);
 
-  //接收要进行的函数操作
+  //receive reduction type
   char function_name[BUF_SIZE] = {'\0'};
   char fun_name_model[] = "fun";
   
   strLen = recvfrom(sockC, bufRecvFromD, strlen(fun_name_model), 0, &serverD_addr, &serverD_addr_size);
   
   // printf("before strcpy, received:%s\n", bufRecvFromD);
-  // bufRecvFromD[3] = '\0';
-  //Note: when testing on my PC, bakck-end servers will receive function name correctly, which means no need to add this line. However on Nunki, somehow it will added a question mark at the end of the function name when receiving. Since in this project all the reduction type are 3-character, so I intentionally let "bufRecvFromD[3] = '\0' " here as a simple sulution. But in general, in cases when function names are not the same length, the back-end servers side could check each elements from the beginning of the "bufRecvFrom[]" array, i.e: to check if 'a' < bufRecvFrom[D]) < 'z' || 'A' < bufRecvFrom[D] < 'Z' until it is not a letter, then added '\0' at the end of the array. So the problem will also be solved.
   strcpy(function_name, bufRecvFromD);
   function_name[3] = '\0';
+  //Note: when testing on my PC, bakck-end servers will receive function name correctly, which means no need to add this line. However on Nunki, somehow it will added a question mark at the end of the function name when receiving. Since in this project all the reduction type are 3-character, so I intentionally let "bufRecvFromD[3] = '\0' " here as a simple sulution. But in general, in cases when function names are not the same length, the back-end servers side could check each elements from the beginning of the "bufRecvFrom[]" array, i.e: to check if 'a' < bufRecvFrom[D]) < 'z' || 'A' < bufRecvFrom[D] < 'Z' until it is not a letter, then added '\0' at the end of the array. So the problem will also be solved.
   // printf("The server has received reduction type <%s>\n", function_name);
 
-  //接收要处理的数据
+  //receive numbers
   int numsC[sample_volume];
   int numCount = 0;
   while(1){
@@ -73,7 +70,7 @@ int main(){
   // printf("Socket for receiving data from AWS has closed.\n");
   // printf("Received numbers have been printed above.\n");
 
-  //本地服务器C处理接收到的数据
+  //do the reduction
   char max_func[] = "max";
   char min_func[] = "min";
   char sum_func[] = "sum";
@@ -100,7 +97,7 @@ int main(){
 
   
 
-  //完成数据处理后, 将结果返回给AWS
+  //send result back to AWS
   int sockD = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
   struct sockaddr_in server_D_addr;
@@ -120,8 +117,6 @@ int main(){
 }
 
 int get_max(int *nums, int sample_volume){
-  //sort the array in ASC
-  // return nums[sample_volume-1];
   int temp = nums[0];
   for (int i = 1; i < sample_volume; ++i){
     if (nums[i] > temp){
@@ -131,8 +126,6 @@ int get_max(int *nums, int sample_volume){
   return temp;
 }
 int get_min(int *nums, int sample_volume){
-  //sort the array in ASC
-  // return nums[0];
   int temp = nums[0];
   for (int i = 1; i < sample_volume; ++i){
     if (nums[i] < temp){

@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]){
   char bufSendToServ[BUF_SIZE] = {'\0'};
   char bufRecvFromServ[LONG_BUF] = {'\0'};
 
-  //首先发送函数名
+  //First send the reduction type to AWS
   strcpy(bufSendToServ, argv[1]);
   // printf("Gonna send: %s to server\n", bufSendToServ);
 
@@ -30,7 +30,7 @@ int main(int argc, char const *argv[]){
 
   printf("The client has sent the reduction type <%s> to AWS.\n", bufSendToServ);
 
-  //然后发送数据
+  //send numbers
   int numCount = 0;
 
   FILE *fp = fopen("./nums.csv", "rb");
@@ -49,12 +49,12 @@ int main(int argc, char const *argv[]){
     memset(bufSendToServ, 0, BUF_SIZE);
   }
 
-  //关闭文件
+  //close file 
   fclose(fp);
 
   printf("The client has sent <%d> numbers to AWS\n", numCount);
 
-  //最后发送结束信息
+  //send the finish message to AWS
   char finMsg[] = "Fin";
   strcpy(bufSendToServ, finMsg);
   
@@ -63,7 +63,7 @@ int main(int argc, char const *argv[]){
   
   memset(bufSendToServ, 0, BUF_SIZE);
 
-  //接收来自server的最终结果
+  //Receive the final result from AWS
   char max_func[] = "max";
   char min_func[] = "min";
   char sum_func[] = "sum";
