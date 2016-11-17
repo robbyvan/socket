@@ -11,8 +11,8 @@ Port: 23807
 #include <sys/socket.h>
 #include <signal.h>
 
-#define BUF_SIZE 100
-#define MAX_VOLUME 1000
+#define BUF_SIZE 1000
+#define LONG_BUF 3*sizeof(long int)*sizeof(long int)
 
 /**/
 int get_max(int *nums, int sample_volume);
@@ -46,13 +46,15 @@ int main(){
 
   //接收要进行的函数操作
   char function_name[BUF_SIZE] = {'\0'};
+  char fun_name_model[] = "fun";
   
-  strLen = recvfrom(sockC, bufRecvFromD, BUF_SIZE, 0, &serverD_addr, &serverD_addr_size);
+  strLen = recvfrom(sockC, bufRecvFromD, strlen(fun_name_model), 0, &serverD_addr, &serverD_addr_size);
   
   // printf("before strcpy, received:%s\n", bufRecvFromD);
-  bufRecvFromD[3] = '\0';
+  // bufRecvFromD[3] = '\0';
   //Note: when testing on my PC, bakck-end servers will receive function name correctly, which means no need to add this line. However on Nunki, somehow it will added a question mark at the end of the function name when receiving. Since in this project all the reduction type are 3-character, so I intentionally let "bufRecvFromD[3] = '\0' " here as a simple sulution. But in general, in cases when function names are not the same length, the back-end servers side could check each elements from the beginning of the "bufRecvFrom[]" array, i.e: to check if 'a' < bufRecvFrom[D]) < 'z' || 'A' < bufRecvFrom[D] < 'Z' until it is not a letter, then added '\0' at the end of the array. So the problem will also be solved.
   strcpy(function_name, bufRecvFromD);
+  function_name[3] = '\0';
   // printf("The server has received reduction type <%s>\n", function_name);
 
   //接收要处理的数据
@@ -106,9 +108,9 @@ int main(){
   server_D_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   server_D_addr.sin_port = htons(24807);
 
-  char bufSendToD[BUF_SIZE] = {'\0'};
+  char bufSendToD[LONG_BUF] = {'\0'};
 
-  memset(bufSendToD, 0, BUF_SIZE);
+  memset(bufSendToD, 0, LONG_BUF);
   sprintf(bufSendToD, "%d", result);
 
   sendto(sockD, bufSendToD, strlen(bufSendToD), 0, (struct sockaddr*)&server_D_addr, sizeof(server_D_addr));

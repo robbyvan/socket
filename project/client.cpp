@@ -6,7 +6,8 @@
 #include <sys/socket.h>
 #include <signal.h>
 
-#define BUF_SIZE 100
+#define BUF_SIZE 1000
+#define LONG_BUF 3*sizeof(long int)*sizeof(long int)
 
 int main(int argc, char const *argv[]){
   struct sockaddr_in serv_addr;
@@ -16,7 +17,7 @@ int main(int argc, char const *argv[]){
   serv_addr.sin_port = htons(25807);
 
   char bufSendToServ[BUF_SIZE] = {'\0'};
-  char bufRecvFromServ[BUF_SIZE] = {'\0'};
+  char bufRecvFromServ[LONG_BUF] = {'\0'};
 
   //首先发送函数名
   strcpy(bufSendToServ, argv[1]);
@@ -63,6 +64,11 @@ int main(int argc, char const *argv[]){
   memset(bufSendToServ, 0, BUF_SIZE);
 
   //接收来自server的最终结果
+  char max_func[] = "max";
+  char min_func[] = "min";
+  char sum_func[] = "sum";
+  char sos_func[] = "sos";
+
   recv(sock, bufRecvFromServ, BUF_SIZE, 0);
   // printf("String is: %s\n", bufRecvFromServ);
   int finalResult = atoi(bufRecvFromServ);
